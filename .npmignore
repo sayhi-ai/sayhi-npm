@@ -1,0 +1,11 @@
+# Project files and folders
+src
+test
+docs
+coverage
+
+# IDE files and folders
+.idea
+
+# Other
+*.log

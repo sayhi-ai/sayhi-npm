@@ -1,0 +1,11 @@
+# Project files and folders
+lib
+docs
+node_modules
+coverage
+
+# IDE files and folders
+.idea
+
+# Other
+*.log
