@@ -1,6 +1,22 @@
 const sayhi_ai = {
-    testModule() {
-        return "This module is working."
+    login(username, password) {
+
+    },
+
+    createAccount(firstName, lastName, email, password) {
+
+    },
+
+    say(token, phrase, persona) {
+
+    },
+
+    addResponse(token, phrase, persona, response) {
+
+    },
+
+    removeResponse(token, response) {
+
     }
 };
 
