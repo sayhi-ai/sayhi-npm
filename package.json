@@ -59,7 +59,9 @@
     "url": "https://github.com/sayhi-ai/sayhi-npm/issues"
   },
   "homepage": "https://sayhi.ai",
-  "dependencies": {},
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1"
+  },
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-loader": "^6.2.8",
@@ -69,15 +71,18 @@
     "babel-preset-stage-0": "^6.16.0",
     "babel-register": "^6.18.0",
     "esdoc": "^0.4.8",
+    "json-loader": "^0.5.4",
     "npm-run-all": "^3.1.1",
     "webpack": "^1.13.3"
   },
   "scripts": {
-    "start": "webpack -p",
+    "start": "npm-run-all build",
+    "build": "webpack -p --config tools/webpack.config.prod.js",
+    "build:dev": "webpack -p --config tools/webpack.config.dev.js",
     "generate-docs": "esdoc -c esdoc.json",
     "deploy-docs": "gh-pages-deploy",
     "clean-source": "rimraf README.md src webroot package.json",
-    "prepublish": "webpack -p"
+    "prepublish": "npm-run-all build"
   },
   "gh-pages-deploy": {
     "staticpath": "./docs",

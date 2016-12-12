@@ -1,5 +1,6 @@
 # Project files and folders
 lib
+dev
 docs
 node_modules
 coverage

@@ -1,3 +1,5 @@
+var webpack = require('webpack');
+
 module.exports = {
     entry: "./src/index.js",
     target: 'node',
@@ -11,5 +13,10 @@ module.exports = {
         path: "./lib",
         filename: "lib.min.js",
         libraryTarget: 'umd'
-    }
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': '"production"'
+        })
+    ]
 };
