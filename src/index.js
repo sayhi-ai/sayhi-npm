@@ -1,9 +1,9 @@
-import fetch from "isomorphic-fetch";
-import Bot from "./bot";
-import SERVER_URLS from "./serverUrls";
-import Immutable from 'immutable';
+import fetch from "isomorphic-fetch"
+import Bot from "./bot"
+import SERVER_URLS from "./serverUrls"
+import Immutable from 'immutable'
 
-let _bots = Immutable.List();
+let _bots = Immutable.List()
 
 const sayhiAi = {
   init(token) {
@@ -21,32 +21,32 @@ const sayhiAi = {
           return response.json()
             .then(json => {
               _bots = Immutable.List(json.bots)
-                .map(bot => new Bot(token, bot.id, bot.name, bot.type, bot.description));
-              return true;
+                .map(bot => new Bot(token, bot.id, bot.name, bot.type, bot.description))
+              return true
             })
             .catch(error => {
-              throw error;
-            });
+              throw error
+            })
         }
-        throw new Error("Unable to get bots.");
+        throw new Error("Unable to get bots.")
       })
       .catch(error => {
-        throw error;
-      });
+        throw error
+      })
   },
 
   getBot(name) {
     if (_bots.size === 0) {
-      throw new Error("No bots found (yet?).");
+      throw new Error("No bots found (yet?).")
     }
 
-    const bot = _bots.filter(bot => bot.getName() === name);
+    const bot = _bots.filter(bot => bot.getName() === name)
 
     if (bot.size === 1) {
-      return bot.get(0);
+      return bot.get(0)
     }
-    throw new Error("Duplicate bot found.");
+    throw new Error("Duplicate bot found.")
   }
-};
+}
 
-export default sayhiAi;
+export default sayhiAi
