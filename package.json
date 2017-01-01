@@ -60,6 +60,7 @@
   },
   "homepage": "https://sayhi.ai",
   "dependencies": {
+    "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
@@ -71,12 +72,16 @@
     "babel-preset-stage-0": "^6.16.0",
     "babel-register": "^6.18.0",
     "esdoc": "^0.4.8",
+    "eslint": "^3.5.0",
+    "eslint-config-google": "^0.6.0",
     "json-loader": "^0.5.4",
     "npm-run-all": "^3.1.1",
     "webpack": "^1.13.3"
   },
   "scripts": {
-    "start": "npm-run-all build",
+    "start": "npm-run-all lint build",
+    "dev": "webpack --progress --config tools/webpack.config.dev.js --watch",
+    "lint": "eslint ./src",
     "build": "webpack -p --config tools/webpack.config.prod.js",
     "build:dev": "webpack -p --config tools/webpack.config.dev.js",
     "generate-docs": "esdoc -c esdoc.json",

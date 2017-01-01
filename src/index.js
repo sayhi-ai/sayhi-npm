@@ -1,77 +1,52 @@
 import fetch from "isomorphic-fetch";
-import ENV_VARS from "../tools/ENV_VARS";
+import Bot from "./bot";
+import SERVER_URLS from "./serverUrls";
+import Immutable from 'immutable';
 
-const sayhi_ai = {
-    login(email, password) {
-        return fetch(ENV_VARS.SERVER_URL + "/login", {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "email": email,
-                "password": password
+let _bots = Immutable.List();
+
+const sayhiAi = {
+  init(token) {
+    return fetch(SERVER_URLS.GET_BOTS, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({})
+    })
+      .then(response => {
+        if (response.status === 200) {
+          return response.json()
+            .then(json => {
+              _bots = Immutable.List(json.bots)
+                .map(bot => new Bot(token, bot.id, bot.name, bot.type, bot.description));
+              return true;
             })
-        })
-    },
-
-    say(token, phrase, persona) {
-      return this.say(token, phrase, persona, true, [])
-    },
-
-    say(token, phrase, persona, personal) {
-        return fetch(ENV_VARS.SERVER_URL + "/getresponse", {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "token": token,
-                "phrase": phrase,
-                "persona": persona,
-                "personal": personal
-            })
-        })
-    },
-
-    replaceVars(response, vars) {
-        for (let i = 0; i < vars.length; i++) {
-            response = response.replace(
-                ENV_VARS.CONSTANTS.RESPONSE_VARIABLE + i, vars[i]);
+            .catch(error => {
+              throw error;
+            });
         }
-    },
+        throw new Error("Unable to get bots.");
+      })
+      .catch(error => {
+        throw error;
+      });
+  },
 
-    addResponse(token, phrase, persona, response) {
-        return fetch(ENV_VARS.SERVER_URL + "/addresponse", {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "token": token,
-                "phrase": phrase,
-                "persona": persona,
-                "response": response
-            })
-        })
-    },
-
-    removeResponse(token, response) {
-        return fetch(ENV_VARS.SERVER_URL + "/removeresponse", {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "token": token,
-                "response": response
-            })
-        })
+  getBot(name) {
+    if (_bots.size === 0) {
+      throw new Error("No bots found (yet?).");
     }
+
+    const bot = _bots.filter(bot => bot.getName() === name);
+
+    if (bot.size === 1) {
+      return bot.get(0);
+    }
+    throw new Error("Duplicate bot found.");
+  }
 };
 
-export default sayhi_ai
+export default sayhiAi;
