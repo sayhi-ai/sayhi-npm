@@ -12,15 +12,3 @@ sayHi.init(token)
   .catch(error => {
     console.log(error);
   });
-
-// let response = "Hey {name}! {}";
-// const vars = {
-//   name: "Julian"
-// };
-// const keys = Object.keys(vars);
-// keys.forEach(key => {
-//   const regex = new RegExp('{' + key + '}', "g");
-//
-//   response = response.replace(regex, vars[key]);
-// });
-// console.log(response);
