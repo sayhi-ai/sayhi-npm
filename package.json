@@ -59,6 +59,10 @@
     "url": "https://github.com/sayhi-ai/sayhi-npm/issues"
   },
   "homepage": "https://sayhi.ai",
+  "engines": {
+    "npm": ">=3.0.0",
+    "node": ">=7.0.0"
+  },
   "dependencies": {
     "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1"
