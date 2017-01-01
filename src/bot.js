@@ -141,7 +141,7 @@ export default class Bot {
   }
 
   _replaceVars(response, vars) {
-    if (response === null && vars === null) {
+    if (response === null || vars === null) {
       return null;
     }
 

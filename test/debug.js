@@ -4,8 +4,9 @@ const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0ODU4MTA4MjgsImlh
 sayHi.init(token)
   .then(result => {
     const bot = sayHi.getBot("bot1");
-    return bot.say("jhhj", {
-      name: "Julian"
+    return bot.say("greeting", {
+      name: "Julian",
+      location: "Homers"
     });
   })
   .then(response => console.log(response))
