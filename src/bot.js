@@ -1,18 +1,15 @@
-import fetch from "isomorphic-fetch"
-import SERVER_URLS from "./serverUrls"
-
-const RESPONSE_TYPE = {
-  TEXT: "TEXT",
-  HTML: "HTML"
-}
+import ENV_VARS from "../tools/ENV_VARS"
 
 export default class Bot {
-  constructor(token, id, name, type, description) {
+  constructor(functionHandler, modulesHandler, token, id, name, type, description) {
+    this._phraseHandler = functionHandler.getPhraseHandler()
+    this._responseHandler = functionHandler.getResponseHandler()
     this._token = token
     this._id = id
     this._name = name
     this._type = type
     this._description = description
+    this._cache = modulesHandler.getCache()
   }
 
   getId() {
@@ -32,97 +29,39 @@ export default class Bot {
   }
 
   say(phrase, vars = null) {
-    return this._getResponse(this._token, phrase, RESPONSE_TYPE.TEXT, vars)
+    return this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.TEXT_RESPONSE, vars)
   }
 
   sayHTML(phrase, vars = null) {
-    return this._getResponse(this._token, phrase, RESPONSE_TYPE.HTML, vars)
+    return this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.HTML_RESPONSE, vars)
   }
 
   _getResponse(token, phrase, type, vars) {
-    let url = this._chooseURLFromType(type)
-
     if (token === null || this._id === null) {
       return null
     }
 
+    // Check if phrase is cached
+    const cachedResponses = this._cache.checkCache(phrase, type)
+    if (cachedResponses !== null) {
+      let response = this._responseHandler.chooseResponse(cachedResponses)
+      response = this._chooseResponseFromType(type, response)
+      return this._replaceVars(response, vars)
+    }
+
+    // Otherwise fetch responses from server
     let keys = ["{}"]
     if (vars !== null) {
       keys = Object.keys(vars)
     }
 
-    return this._getPhraseId(token, phrase)
-      .then(id => {
-        if (id === null) {
-          return null
-        }
-
-        return fetch(url, {
-          method: "POST",
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify({
-            phraseId: id,
-            vars: keys
-          })
-        })
-      })
-      .then(response => {
-        if (response !== null && response.status === 200) {
-          return response.json()
-            .then(json => this._chooseResponseFromType(type, json.response))
-            .then(response => this._replaceVars(response, vars))
-            .catch(error => {
-              throw error
-            })
-        }
-        return null
-      })
+    return this._phraseHandler.getPhraseId(token, this._id, phrase)
+      .then(id => this._responseHandler.getResponse(this._token, phrase, id, type, keys))
+      .then(response => this._chooseResponseFromType(type, response))
+      .then(response => this._replaceVars(response, vars))
       .catch(error => {
         throw error
       })
-  }
-
-  _getPhraseId(token, phrase) {
-    return fetch(SERVER_URLS.GET_PHRASE_ID, {
-      method: "POST",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({
-        botId: this._id,
-        phrase: phrase
-      })
-    })
-      .then(response => {
-        if (response.status === 200) {
-          return response.json()
-            .then(json => json.id)
-            .catch(error => {
-              throw error
-            })
-        }
-        return null
-      })
-      .catch(error => {
-        throw error
-      })
-  }
-
-  _chooseURLFromType(type) {
-    switch (type) {
-      case RESPONSE_TYPE.TEXT:
-        return SERVER_URLS.GET_RESPONSE_PLAIN
-      case RESPONSE_TYPE.HTML:
-        return SERVER_URLS.GET_RESPONSE_HTML
-      default:
-        return SERVER_URLS.GET_RESPONSE_PLAIN
-    }
   }
 
   _chooseResponseFromType(type, response) {
@@ -131,9 +70,9 @@ export default class Bot {
     }
 
     switch (type) {
-      case RESPONSE_TYPE.TEXT:
+      case ENV_VARS.CONSTANTS.TEXT_RESPONSE:
         return response.text
-      case RESPONSE_TYPE.HTML:
+      case ENV_VARS.CONSTANTS.HTML_RESPONSE:
         return response.html
       default:
         return null
@@ -141,11 +80,7 @@ export default class Bot {
   }
 
   _replaceVars(response, vars) {
-    if (response === null) {
-      return null
-    }
-
-    if (vars === null) {
+    if (response === null || vars === null) {
       return response
     }
 

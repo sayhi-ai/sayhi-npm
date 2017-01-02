@@ -1,38 +1,29 @@
-import fetch from "isomorphic-fetch"
 import Bot from "./bot"
-import SERVER_URLS from "./serverUrls"
 import Immutable from 'immutable'
+import GCClient from './clients/graphcoolClient'
+import FunctionHandler from './functions/functionHandler'
+import ModulesHandler from './modules/modulesHandler'
 
+const _gcClient = new GCClient()
+const _modulesHandler = new ModulesHandler()
+const _functionHandler = new FunctionHandler(_gcClient, _modulesHandler)
 let _bots = Immutable.List()
 
 const sayhiAi = {
   init(token) {
-    return fetch(SERVER_URLS.GET_BOTS, {
-      method: "POST",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({})
-    })
-      .then(response => {
-        if (response.status === 200) {
-          return response.json()
-            .then(json => {
-              _bots = Immutable.List(json.bots)
-                .map(bot => new Bot(token, bot.id, bot.name, bot.type, bot.description))
-              return true
-            })
-            .catch(error => {
-              throw error
-            })
-        }
-        throw new Error("Unable to get bots.")
+    return _functionHandler.getBotHandler().getBots(token)
+      .then(bots => {
+        _bots = Immutable.List(bots)
+          .map(bot => new Bot(_functionHandler, _modulesHandler, token, bot.id, bot.name, bot.type, bot.description))
+        return true
       })
       .catch(error => {
         throw error
       })
+  },
+
+  getCache() {
+    return _modulesHandler.getCache()
   },
 
   getBot(name) {

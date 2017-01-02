@@ -1,7 +1,8 @@
-var webpack = require('webpack');
+const webpack = require('webpack')
 
 module.exports = {
   entry: "./src/index.js",
+  devtool: 'sourcemap',
   target: 'node',
   module: {
     loaders: [
@@ -19,4 +20,4 @@ module.exports = {
       'process.env.NODE_ENV': '"development"'
     })
   ]
-};
+}
