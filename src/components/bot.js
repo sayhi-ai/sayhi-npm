@@ -44,7 +44,7 @@ export default class Bot {
     // Check if phrase is cached
     const cachedResponses = this._cache.checkCache(phrase, type)
     if (cachedResponses !== null) {
-      let response = this._responseHandler.chooseResponse(cachedResponses)
+      let response = this._responseHandler.chooseResponse(phrase, cachedResponses)
       return this._replaceVars(response, vars)
     }
 
@@ -69,7 +69,7 @@ export default class Bot {
 
     const keys = Object.keys(vars)
     keys.forEach(key => {
-      const regex = new RegExp('{' + key + '}', "g")
+      const regex = new RegExp(ENV_VARS.CONSTANTS.VARIABLE_START + key + ENV_VARS.CONSTANTS.VARIABLE_START, "g")
 
       response = response.replace(regex, vars[key])
     })

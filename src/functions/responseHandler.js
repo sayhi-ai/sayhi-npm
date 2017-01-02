@@ -9,7 +9,7 @@ export default class {
   getResponse(token, phrase, phraseId, type, vars) {
     logger.debug(`Getting a response for phrase: ${phraseId}..`)
     return this._getResponses(token, phrase, phraseId, type, vars)
-      .then(responses => this.chooseResponse(responses))
+      .then(responses => this.chooseResponse(phrase, responses))
       .catch(error => {
         throw error
       })
@@ -41,14 +41,21 @@ export default class {
       })
   }
 
-  chooseResponse(responses) {
+  chooseResponse(phrase, responses) {
     if (responses.size > 0) {
-      const index = Math.floor(Math.random() * responses.size)
+      const history = this._cache.getResponseHistory(phrase)
+      const index = this._generateIndex(history, responses.size)
+      this._cache.addToResponseHistory(phrase, index)
       logger.debug(`Response chosen: ${responses.get(index)} at index ${index}`)
       return responses.get(index)
     }
 
     logger.warn("No responses found to choose from.")
     return null
+  }
+
+  _generateIndex(history, size) {
+    const index = Math.floor(Math.random() * size)
+    return (history.size <= size - 2 && history.contains(index)) ? this._generateIndex(history, size) : index
   }
 }

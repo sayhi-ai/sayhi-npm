@@ -5,15 +5,14 @@ import logger from "../util/logger"
 const PhraseRecord = Immutable.Record({
   type: "text",
   count: 0,
-  responses: Immutable.List(),
-  history: Immutable.List()
+  history: Immutable.List(),
+  responses: Immutable.List()
 })
 
 export default class {
   constructor() {
     this._cache = Immutable.OrderedMap()
-    this._active = true
-    this._updateInterval = 1800000  // 30 min by default
+    this._updateInterval = 1800000  // 30 min by default, 2 min minimum
     this._maxSize = 1000            // Total number of elements allowed in the cache
     this._batchDeleteSize = 100     // Remove 100 entries from the cashe at a time if it is full
     this._size = 0
@@ -22,12 +21,8 @@ export default class {
     this._remoteUpdateCache(this)
   }
 
-  setActive(active) {
-    this._active = active
-  }
-
-  setUpdateFrequency(updateFrequency) {
-    this._updateInterval = updateFrequency
+  setRemoteUpdateInterval(updateFrequency) {
+    this._updateInterval = Math.max(updateFrequency, 120000) // 2 min minimum
   }
 
   setMaxSize(size) {
@@ -38,11 +33,37 @@ export default class {
     this._cache = Immutable.OrderedMap()
   }
 
-  checkCache(phrase, type) {
-    if (!this._active) {
+  addToResponseHistory(phrase, index) {
+    const phraseRecord = this._cache.get(phrase, null)
+    if (phraseRecord === null) {
+      return false
+    }
+
+    let history = phraseRecord.get('history')
+    if (!history.contains(index) && history.size < 5) {
+      history = history.push(index)
+    } else if (!history.contains(index)) {
+      history = history.shift()
+      history = history.push(index)
+    } else {
+      return false
+    }
+
+    const newRecord = phraseRecord.set('history', history)
+    this._cache = this._cache.set(phrase, newRecord)
+    return true
+  }
+
+  getResponseHistory(phrase) {
+    const phraseRecord = this._cache.get(phrase, null)
+    if (phraseRecord === null) {
       return null
     }
 
+    return phraseRecord.get('history')
+  }
+
+  checkCache(phrase, type) {
     logger.debug(`Checking cache for phrase: ${phrase}`)
     let phraseRecord = this._cache.get(phrase, null)
     if (phraseRecord === null) {
@@ -71,10 +92,6 @@ export default class {
     const immutableResponses = Immutable.List(responses)
         .map(response => this._chooseResponseFromType(response, type))
 
-    if (!this._active) {
-      return immutableResponses
-    }
-
     // Remove first 10 elements of cache if the cashe is full
     if (this._size > this._maxSize) {
       const phrases = this._cache.keySeq()
@@ -87,9 +104,11 @@ export default class {
     let phraseRecord = this._cache.get(phrase, null)
     let count = 0
     let oldResponseSize = 0
+    let history = Immutable.List()
     if (phraseRecord !== null) {
       count = phraseRecord.get('count')
       oldResponseSize = phraseRecord.get('responses').size
+      history = phraseRecord.get('history')
     }
 
     this._size += immutableResponses.size - oldResponseSize + 3
@@ -97,6 +116,7 @@ export default class {
     phraseRecord = new PhraseRecord({
       type: type,
       count: count,
+      history: history,
       responses: immutableResponses
     })
 

@@ -2,7 +2,8 @@ let ENV_VARS;
 
 const CONSTANTS = {
   GRAPHCOOL_URL: "https://api.graph.cool/simple/v1/citcyox3z0pbh0171u6i6b8nu",
-  RESPONSE_VARIABLE: "$VAR",
+  VARIABLE_START: "{",
+  VARIABLE_END: "}",
   TEXT_RESPONSE: 'text',
   HTML_RESPONSE: 'html'
 }
