@@ -2,7 +2,20 @@ import winston from 'winston'
 
 let logger = null
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV === "production") {
+  logger = {
+    debug(text) {
+    },
+    info(text) {
+    },
+    warn(text) {
+    },
+    error(text) {
+    },
+    fatal(text) {
+    }
+  }
+} else {
   winston.emitErrs = true
 
   const transports = [
@@ -19,19 +32,6 @@ if (process.env.NODE_ENV !== "production") {
   })
 
   winston.handleExceptions(transports)
-} else {
-  logger = {
-    debug(text) {
-    },
-    info(text) {
-    },
-    warn(text) {
-    },
-    error(text) {
-    },
-    fatal(text) {
-    }
-  }
 }
 
 export default logger

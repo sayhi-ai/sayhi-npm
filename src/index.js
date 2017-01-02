@@ -1,4 +1,4 @@
-import Bot from "./bot"
+import Bot from "./components/bot"
 import Immutable from 'immutable'
 import GCClient from './clients/graphcoolClient'
 import FunctionHandler from './functions/functionHandler'

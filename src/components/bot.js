@@ -1,4 +1,4 @@
-import ENV_VARS from "../tools/ENV_VARS"
+import ENV_VARS from "../../tools/ENV_VARS"
 
 export default class Bot {
   constructor(functionHandler, modulesHandler, token, id, name, type, description) {
