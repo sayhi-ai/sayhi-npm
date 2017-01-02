@@ -56,6 +56,18 @@ export default class {
 
   _generateIndex(history, size) {
     const index = Math.floor(Math.random() * size)
-    return (history.size <= size - 2 && history.contains(index)) ? this._generateIndex(history, size) : index
+    let lastIndex = null
+    let secondToLastIndex = null
+    if (history.size > 1) {
+      lastIndex = history[history.size - 1]
+      secondToLastIndex = history[history.size - 2]
+    } else if (history.size > 0) {
+      lastIndex = history[history.size - 1]
+    }
+
+    if (index === lastIndex || index === secondToLastIndex || (history.size <= size - 2 && history.contains(index))) {
+      return this._generateIndex(history, size)
+    }
+    return index
   }
 }
