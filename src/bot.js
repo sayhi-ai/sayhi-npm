@@ -45,7 +45,6 @@ export default class Bot {
     const cachedResponses = this._cache.checkCache(phrase, type)
     if (cachedResponses !== null) {
       let response = this._responseHandler.chooseResponse(cachedResponses)
-      response = this._chooseResponseFromType(type, response)
       return this._replaceVars(response, vars)
     }
 
@@ -57,26 +56,10 @@ export default class Bot {
 
     return this._phraseHandler.getPhraseId(token, this._id, phrase)
       .then(id => this._responseHandler.getResponse(this._token, phrase, id, type, keys))
-      .then(response => this._chooseResponseFromType(type, response))
       .then(response => this._replaceVars(response, vars))
       .catch(error => {
         throw error
       })
-  }
-
-  _chooseResponseFromType(type, response) {
-    if (response === null) {
-      return null
-    }
-
-    switch (type) {
-      case ENV_VARS.CONSTANTS.TEXT_RESPONSE:
-        return response.text
-      case ENV_VARS.CONSTANTS.HTML_RESPONSE:
-        return response.html
-      default:
-        return null
-    }
   }
 
   _replaceVars(response, vars) {
