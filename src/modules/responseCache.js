@@ -40,13 +40,17 @@ export default class {
     }
 
     let history = phraseRecord.get('history')
-    if (!history.contains(index) && history.size < 5) {
-      history = history.push(index)
-    } else if (!history.contains(index)) {
-      history = history.shift()
+
+    // Make sure there are no duplicates
+    if (history.contains(index)) {
+      return false
+    }
+
+    if (history.size < 5) {
       history = history.push(index)
     } else {
-      return false
+      history = history.shift()
+      history = history.push(index)
     }
 
     const newRecord = phraseRecord.set('history', history)
