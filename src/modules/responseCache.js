@@ -9,6 +9,12 @@ const PhraseRecord = Immutable.Record({
   responses: Immutable.List()
 })
 
+const ResponseRecord = Immutable.Record({
+  id: "",
+  response: "",
+  vars: Immutable.List()
+})
+
 export default class {
   constructor() {
     this._cache = Immutable.OrderedMap()
@@ -67,7 +73,7 @@ export default class {
     return phraseRecord.get('history')
   }
 
-  checkCache(phrase, type) {
+  checkCache(phrase, vars, type) {
     logger.debug(`Checking cache for phrase: ${phrase}`)
     let phraseRecord = this._cache.get(phrase, null)
     if (phraseRecord === null) {
@@ -75,11 +81,15 @@ export default class {
       return null
     }
 
-    const responses = phraseRecord.get('responses')
-    if (responses === null || phraseRecord.get('type') !== type) {
+    const allResponses = phraseRecord.get('responses')
+    if (allResponses === null || phraseRecord.get('type') !== type) {
       logger.debug(`No cached response found for phrase: ${phrase}`)
       return null
     }
+
+    vars = Immutable.List(vars)
+    const responses = allResponses
+      .filter(response => response.get('vars').equals(vars))
 
     phraseRecord = phraseRecord.set('count', phraseRecord.get('count') + 1)
     this._cache = this._cache.set(phrase, phraseRecord)
@@ -94,9 +104,13 @@ export default class {
     }
 
     const immutableResponses = Immutable.List(responses)
-      .map(response => this._chooseResponseFromType(response, type))
+      .map(response => new ResponseRecord({
+        id: response.id,
+        response: this._chooseResponseFromType(response, type),
+        vars: Immutable.List(response.vars)
+      }))
 
-    // Remove first 10 elements of cache if the cashe is full
+    // Remove first batchDeleteSize elements of cache if the cache is full
     if (this._size > this._maxSize) {
       const phrases = this._cache.keySeq()
 

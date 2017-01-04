@@ -12,8 +12,8 @@ export default class {
 
     const query = {
       query: `
-        query {
-          User(id: "${decodedToken.userId}") {
+        query getBots($id: ID!){
+          User(id: $id) {
             bots {
               id,
               name,
@@ -22,6 +22,9 @@ export default class {
             }
           }
         }`,
+      vars: {
+        id: decodedToken.userId
+      },
       token: token
     }
 
@@ -32,7 +35,6 @@ export default class {
         return bots
       })
       .catch(error => {
-        console.log(error)
         throw new Error(`Error getting bots for user: ${decodedToken.userId}. -- ${JSON.stringify(error)}`)
       })
   }

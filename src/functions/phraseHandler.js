@@ -10,13 +10,17 @@ export default class {
 
     const query = {
       query: `
-        query {
-          Bot(id: "${botId}") {
-            phrases(filter: {phrase: "${phrase}"}) {
+        query getPhraseId($id: ID!, $phrase: String!) {
+          Bot(id: $id) {
+            phrases(filter: {phrase: $phrase}) {
               id
             }
           }
         }`,
+      vars: {
+        id: botId,
+        phrase: phrase
+      },
       token: token
     }
 

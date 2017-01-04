@@ -1,4 +1,5 @@
 import logger from "../util/logger"
+import Immutable from "immutable"
 
 export default class {
   constructor(gcClient, modulesHandler) {
@@ -18,23 +19,28 @@ export default class {
   _getResponses(token, phrase, phraseId, type, vars) {
     const query = {
       query: `
-          query {
-            Phrase(id: "${phraseId}") {
-              responses(filter: {
-                vars: ${JSON.stringify(vars)}
-              }) {
-                id,
-                ${type}
-              }
+        query getResponse($id: ID!) {
+          Phrase(id: $id) {
+            responses {
+              id,
+              ${type},
+              vars
             }
-          }`,
+          }
+        }`,
+      vars: {
+        id: phraseId,
+        vars: vars
+      },
       token: token
     }
 
     return this._gcClient.query(query)
       .then(response => {
         logger.debug(`Got responses for phrase: ${phraseId}.`)
+        vars = Immutable.List(vars)
         return this._cache.updateCache(response.Phrase.responses, phrase, type)
+          .filter(response => response.get('vars').equals(vars))
       })
       .catch(error => {
         throw new Error(`Unable to get responses for phrase: ${phraseId}. -- ${JSON.stringify(error)}`)
@@ -47,7 +53,7 @@ export default class {
       const index = this._generateIndex(history, responses.size)
       this._cache.addToResponseHistory(phrase, index)
       logger.debug(`Response chosen: ${responses.get(index)} at index ${index}`)
-      return responses.get(index)
+      return responses.get(index).get('response')
     }
 
     logger.warn("No responses found to choose from.")

@@ -13,7 +13,7 @@ export default class {
       transport: new HttpTransport(ENV_VARS.CONSTANTS.GRAPHCOOL_URL, {headers})
     })
 
-    return client.query(query.query)
+    return client.query(query.query, query.vars)
       .then(response => {
         if (response !== undefined) {
           return response

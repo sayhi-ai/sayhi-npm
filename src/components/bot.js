@@ -1,5 +1,4 @@
 import ENV_VARS from "../../tools/ENV_VARS"
-import PreProcessor from "../util/preProcessor"
 
 const ESCAPE_REGEX = /\\./g
 
@@ -32,12 +31,10 @@ export default class Bot {
   }
 
   say(phrase, vars = null) {
-    phrase = PreProcessor.safeEscape(phrase)
     return this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.TEXT_RESPONSE, vars)
   }
 
   sayHTML(phrase, vars = null) {
-    phrase = PreProcessor.safeEscape(phrase)
     return this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.HTML_RESPONSE, vars)
   }
 
@@ -46,17 +43,17 @@ export default class Bot {
       return null
     }
 
-    // Check if phrase is cached
-    const cachedResponses = this._cache.checkCache(phrase, type)
-    if (cachedResponses !== null) {
-      let response = this._responseHandler.chooseResponse(phrase, cachedResponses)
-      return this._replaceVars(response, "", vars)
-    }
-
-    // Otherwise fetch responses from server
+    // Get keys from vars
     let keys = ["{}"]
     if (vars !== null) {
       keys = Object.keys(vars)
+    }
+
+    // Check if phrase is cached
+    const cachedResponses = this._cache.checkCache(phrase, keys, type)
+    if (cachedResponses !== null) {
+      let response = this._responseHandler.chooseResponse(phrase, cachedResponses)
+      return this._replaceVars(response, "", vars)
     }
 
     return this._phraseHandler.getPhraseId(token, this._id, phrase)
@@ -68,6 +65,10 @@ export default class Bot {
   }
 
   _replaceVars(text, result, vars) {
+    if (text === null || vars === null) {
+      return text
+    }
+
     let matchArr
     const varRegex = /({\w+})+/g  // Needs to reset every time so we define it here
 
