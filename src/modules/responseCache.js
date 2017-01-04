@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import Immutable from "immutable"
 import ENV_VARS from "../../tools/ENV_VARS"
 import logger from "../util/logger"
 
@@ -94,7 +94,7 @@ export default class {
     }
 
     const immutableResponses = Immutable.List(responses)
-        .map(response => this._chooseResponseFromType(response, type))
+      .map(response => this._chooseResponseFromType(response, type))
 
     // Remove first 10 elements of cache if the cashe is full
     if (this._size > this._maxSize) {

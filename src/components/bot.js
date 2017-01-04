@@ -1,4 +1,5 @@
 import ENV_VARS from "../../tools/ENV_VARS"
+import PreProcessor from "../util/preProcessor"
 
 const ESCAPE_REGEX = /\\./g
 
@@ -31,10 +32,12 @@ export default class Bot {
   }
 
   say(phrase, vars = null) {
+    phrase = PreProcessor.safeEscape(phrase)
     return this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.TEXT_RESPONSE, vars)
   }
 
   sayHTML(phrase, vars = null) {
+    phrase = PreProcessor.safeEscape(phrase)
     return this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.HTML_RESPONSE, vars)
   }
 

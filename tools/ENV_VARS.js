@@ -1,4 +1,4 @@
-let ENV_VARS;
+let ENV_VARS
 
 const CONSTANTS = {
   GRAPHCOOL_URL: "https://api.graph.cool/simple/v1/citcyox3z0pbh0171u6i6b8nu",

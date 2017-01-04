@@ -1,6 +1,6 @@
 import ENV_VARS from "../../tools/ENV_VARS"
-import Lokka from 'lokka'
-import HttpTransport from 'lokka-transport-http'
+import Lokka from "lokka"
+import HttpTransport from "lokka-transport-http"
 
 export default class {
   query(query) {
