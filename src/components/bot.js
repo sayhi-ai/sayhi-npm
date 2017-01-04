@@ -1,5 +1,7 @@
 import ENV_VARS from "../../tools/ENV_VARS"
 
+const ESCAPE_REGEX = /\\./g
+
 export default class Bot {
   constructor(functionHandler, modulesHandler, token, id, name, type, description) {
     this._phraseHandler = functionHandler.getPhraseHandler()
@@ -45,7 +47,7 @@ export default class Bot {
     const cachedResponses = this._cache.checkCache(phrase, type)
     if (cachedResponses !== null) {
       let response = this._responseHandler.chooseResponse(phrase, cachedResponses)
-      return this._replaceVars(response, vars)
+      return this._replaceVars(response, "", vars)
     }
 
     // Otherwise fetch responses from server
@@ -56,24 +58,52 @@ export default class Bot {
 
     return this._phraseHandler.getPhraseId(token, this._id, phrase)
       .then(id => this._responseHandler.getResponse(this._token, phrase, id, type, keys))
-      .then(response => this._replaceVars(response, vars))
+      .then(response => this._replaceVars(response, "", vars))
       .catch(error => {
         throw error
       })
   }
 
-  _replaceVars(response, vars) {
-    if (response === null || vars === null) {
-      return response
+  _replaceVars(text, result, vars) {
+    let matchArr
+    const varRegex = /({\w+})+/g  // Needs to reset every time so we define it here
+
+    if ((matchArr = varRegex.exec(text)) !== null) {
+      const start = matchArr.index
+      let prefix = this._removeEscapeCharacters(text.substr(0, start))
+      let variable = this._removeEscapeCharacters(text.substr(start, matchArr[0].length))
+      const remainder = text.substr(start + matchArr[0].length)
+
+      if (this._isEscaped(text, start - 1, 0)) {
+        prefix = prefix.substr(0, prefix.length - 1)
+      } else {
+        variable = variable.substr(1)
+        variable = variable.substr(0, variable.length - 1)
+        variable = vars[variable]
+      }
+      return this._replaceVars(remainder, result + prefix + variable, vars)
     }
 
-    const keys = Object.keys(vars)
-    keys.forEach(key => {
-      const regex = new RegExp(ENV_VARS.CONSTANTS.VARIABLE_START + key + ENV_VARS.CONSTANTS.VARIABLE_START, "g")
+    text = this._removeEscapeCharacters(text)
+    result += text
+    return result
+  }
 
-      response = response.replace(regex, vars[key])
-    })
+  _removeEscapeCharacters(text) {
+    let matchArr = ESCAPE_REGEX.exec(text)
+    while (matchArr !== null) {
+      const start = matchArr.index
+      text = text.slice(0, start) + text.slice(start + 1)
 
-    return response
+      matchArr = ESCAPE_REGEX.exec(text)
+    }
+    return text
+  }
+
+  _isEscaped(text, index, count) {
+    if (index < 0 || text[index] !== ENV_VARS.CONSTANTS.ESCAPE) {
+      return count % 2 !== 0
+    }
+    return this._isEscaped(text, index - 1, count + 1)
   }
 }

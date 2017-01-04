@@ -4,6 +4,7 @@ const CONSTANTS = {
   GRAPHCOOL_URL: "https://api.graph.cool/simple/v1/citcyox3z0pbh0171u6i6b8nu",
   VARIABLE_START: "{",
   VARIABLE_END: "}",
+  ESCAPE: "\\",
   TEXT_RESPONSE: 'text',
   HTML_RESPONSE: 'html'
 }
