@@ -1,6 +1,6 @@
 {
   "name": "sayhi-ai",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Human responses for your bots - Turn your bot's language into human language.",
   "main": "lib/lib.min.js",
   "repository": {
