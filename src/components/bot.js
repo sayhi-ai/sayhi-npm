@@ -3,14 +3,12 @@ import ENV_VARS from "../../tools/ENV_VARS"
 const ESCAPE_REGEX = /\\./g
 
 export default class Bot {
-  constructor(functionHandler, modulesHandler, token, id, name, type, description) {
+  constructor(functionHandler, modulesHandler, token, id, name) {
     this._phraseHandler = functionHandler.getPhraseHandler()
     this._responseHandler = functionHandler.getResponseHandler()
     this._token = token
     this._id = id
     this._name = name
-    this._type = type
-    this._description = description
     this._cache = modulesHandler.getCache()
   }
 
@@ -20,14 +18,6 @@ export default class Bot {
 
   getName() {
     return this._name
-  }
-
-  getType() {
-    return this._type
-  }
-
-  getDescription() {
-    return this._description
   }
 
   say(phrase, vars = null) {

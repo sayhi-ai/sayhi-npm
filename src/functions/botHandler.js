@@ -16,9 +16,7 @@ export default class {
           User(id: $id) {
             bots {
               id,
-              name,
-              type,
-              description
+              name
             }
           }
         }`,

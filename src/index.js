@@ -14,7 +14,7 @@ const sayhiAi = {
     return _functionHandler.getBotHandler().getBots(token)
       .then(bots => {
         _bots = Immutable.List(bots)
-          .map(bot => new Bot(_functionHandler, _modulesHandler, token, bot.id, bot.name, bot.type, bot.description))
+          .map(bot => new Bot(_functionHandler, _modulesHandler, token, bot.id, bot.name))
         return true
       })
       .catch(error => {
