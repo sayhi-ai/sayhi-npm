@@ -94,7 +94,7 @@
     "generate-docs": "esdoc -c esdoc.json",
     "deploy-docs": "gh-pages-deploy",
     "clean-source": "rimraf README.md src webroot package.json",
-    "prepublish": "npm-run-all build && npm version patch"
+    "prepublish": "npm-run-all build"
   },
   "gh-pages-deploy": {
     "staticpath": "./docs",
