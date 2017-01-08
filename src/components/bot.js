@@ -21,11 +21,11 @@ export default class Bot {
   }
 
   say(phrase, vars = null) {
-    return Promise.resolve().then(this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.TEXT_RESPONSE, vars))
+    return Promise.resolve().then(() => this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.TEXT_RESPONSE, vars))
   }
 
   sayHTML(phrase, vars = null) {
-    return Promise.resolve().then(this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.HTML_RESPONSE, vars))
+    return Promise.resolve().then(() => this._getResponse(this._token, phrase, ENV_VARS.CONSTANTS.HTML_RESPONSE, vars))
   }
 
   _getResponse(token, phrase, type, vars) {
