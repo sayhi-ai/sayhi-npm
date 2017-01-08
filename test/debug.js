@@ -5,9 +5,7 @@ let bot = null
 sayHi.init(token)
   .then(result => {
     bot = sayHi.getBot("translation-bot")
-    return bot.say("error", {
-      true: "SUCCESS"
-    })
+    return bot.say("error")
   })
   .then(response => console.log(response))
   .then(result => {
